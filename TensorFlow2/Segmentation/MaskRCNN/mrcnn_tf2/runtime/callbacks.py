@@ -23,7 +23,7 @@ class DLLoggerMetricsCallback(KerasCallback):
     Keras callback that saves metrics using DLLogger.
     """
 
-    def __init__(self, dllogger, log_every=10, log_learning_rate=False):
+    def __init__(self, log_every=10, log_learning_rate=False):
         """
         Args:
             dllogger (DLLogger): DLLogger instance.
@@ -32,7 +32,7 @@ class DLLoggerMetricsCallback(KerasCallback):
                 Cannot be used with AMP enabled as the used hack fails with AMP.
         """
         super().__init__()
-        self._dllogger = dllogger
+        # self._dllogger = dllogger
         self._log_every = log_every
         self._log_learning_rate = log_learning_rate
 
@@ -68,7 +68,8 @@ class DLLoggerMetricsCallback(KerasCallback):
         if not logs:
             return
 
-        self._dllogger.log(step=step, data=logs)
+        # self._dllogger.log(step=step, data=logs)
+        print(step, {k: v for k, v in logs.items()}, flush=True)
 
 
 class DLLoggerPerfCallback(KerasCallback):
@@ -76,9 +77,9 @@ class DLLoggerPerfCallback(KerasCallback):
     Keras callback that measures performance and logs it using DLLogger.
     """
 
-    def __init__(self, dllogger, batch_sizes, warmup_steps=0, log_every=None):
+    def __init__(self, batch_sizes, warmup_steps=0, log_every=None):
         super().__init__()
-        self._dllogger = dllogger
+        # self._dllogger = dllogger
         self._batch_sizes = batch_sizes
         self._warmup_steps = warmup_steps
         self._log_every = log_every
@@ -124,6 +125,17 @@ class DLLoggerPerfCallback(KerasCallback):
 
     def _log_perf(self, deltas, mode, step=tuple()):
         deltas = np.array(deltas)
+        data={
+                f'{mode}_throughput': self._calculate_throughput(deltas, self._batch_sizes[mode]),
+                f'{mode}_latency': self._calculate_latency(deltas),
+                f'{mode}_latency_90': self._calculate_latency_confidence(deltas, 90.0),
+                f'{mode}_latency_95': self._calculate_latency_confidence(deltas, 95.0),
+                f'{mode}_latency_99': self._calculate_latency_confidence(deltas, 99.0),
+                f'{mode}_time': self._calculate_total_time(self._start_timestamps[mode], time.time())
+            }
+        print(step, data, flush=True)
+
+        '''
         self._dllogger.log(
             step=step,
             data={
@@ -135,6 +147,7 @@ class DLLoggerPerfCallback(KerasCallback):
                 f'{mode}_time': self._calculate_total_time(self._start_timestamps[mode], time.time())
             }
         )
+        '''
 
     @staticmethod
     def _calculate_throughput(deltas, batch_size):

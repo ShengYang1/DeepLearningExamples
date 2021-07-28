@@ -19,6 +19,9 @@ import shutil
 import subprocess
 from pathlib import Path
 
+# os.environ["TF_ENABLE_AUTO_MIXED_PRECISION_GRAPH_REWRITE"] = "1"
+# os.environ['TF_ENABLE_AUTO_MIXED_PRECISION'] = '1'
+
 LOCK_FILE = Path('/tmp/mrcnn_tf2.lock')
 
 
