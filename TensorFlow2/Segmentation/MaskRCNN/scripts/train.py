@@ -65,7 +65,6 @@ if __name__ == '__main__':
         f'python {main_path}'
         f' train'
         f' --data_dir "{flags.data_dir}"'
-        f' --backbone_checkpoint "{checkpoint_path}"'
         f' --train_batch_size {flags.batch_size}'
     )
     cmd_eval = (

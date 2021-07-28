@@ -2,7 +2,7 @@ import logging
 import os
 
 import tensorflow as tf
-# import dllogger
+import dllogger
 
 from mrcnn_tf2.model.mask_rcnn import MaskRCNN
 from mrcnn_tf2.runtime.callbacks import DLLoggerMetricsCallback, DLLoggerPerfCallback, PretrainedWeightsLoadingCallback
@@ -80,14 +80,10 @@ def run_evaluation(dataset, params):
         include_mask=params.include_mask
     )
 
-    '''
     dllogger.log(
         step=tuple(),
         data={k: float(v) for k, v in eval_results.items()}
     )
-    '''
-
-    print(tuple(), {k: float(v) for k, v in eval_results.items()}, flush=True)
 
 
 def run_inference(dataset, params):
@@ -116,9 +112,7 @@ def setup(params):
         logging.info('XLA is activated')
 
     if params.amp:
-        #policy = tf.keras.mixed_precision.experimental.Policy("mixed_float16", loss_scale="dynamic")
         # change precision from mixed_float16 to mixed_bfloat16
-        # policy = tf.keras.mixed_precision.experimental.Policy("mixed_float16", loss_scale="dynamic")
         policy = tf.keras.mixed_precision.experimental.Policy("mixed_bfloat16", loss_scale="dynamic")
         tf.keras.mixed_precision.experimental.set_policy(policy)
         logging.info('AMP is activated')
@@ -150,12 +144,12 @@ def create_model(params):
 
 def create_callbacks(params):
     yield DLLoggerMetricsCallback(
-        # dllogger=dllogger,
+        dllogger=dllogger,
         log_every=params.log_every
     )
 
     yield DLLoggerPerfCallback(
-        # dllogger=dllogger,
+        dllogger=dllogger,
         batch_sizes={
             'train': params.train_batch_size * getattr(params, 'replicas', 1),
             'test': params.eval_batch_size * getattr(params, 'replicas', 1),

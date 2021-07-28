@@ -72,7 +72,7 @@ RUNTIME_GROUP.add_argument(
 RUNTIME_GROUP.add_argument(
     '--backbone_checkpoint',
     type=str,
-    default='/weights/rn50_tf_amp_ckpt_v20.06.0/nvidia_rn50_tf_amp',
+    default=None,
     metavar='FILE',
     help='Pretrained checkpoint for resnet'
 )
