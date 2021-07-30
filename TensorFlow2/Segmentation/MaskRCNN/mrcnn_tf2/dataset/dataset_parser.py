@@ -99,7 +99,7 @@ def dataset_parser(value, mode, params, use_instance_mask, seed=None, regenerate
 
     example_decoder = create_example_decoder()
 
-    with tf.xla.experimental.jit_scope(compile_ops=True):
+    with tf.xla.experimental.jit_scope(compile_ops=False):
 
         with tf.name_scope('parser'):
 

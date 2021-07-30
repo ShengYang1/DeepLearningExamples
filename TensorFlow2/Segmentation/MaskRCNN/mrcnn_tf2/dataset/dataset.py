@@ -48,6 +48,30 @@ class Dataset:
 
     def train_fn(self, batch_size):
         """ Input function for training. """
+        # Features
+        if self._params.use_synthetic_data:
+            self._logger.info("Using synthetic data")
+            name_to_features = {
+                "source_ids": tf.zeros((batch_size, ), dtype=tf.float32),
+                "images": tf.zeros((batch_size, 1024, 1024, 3), dtype=tf.float32),
+                "image_info": tf.zeros((batch_size, 5,) , dtype=tf.float32),
+                "cropped_gt_masks": tf.zeros((batch_size, 100, 116, 116), dtype=tf.float32),
+                "gt_boxes": tf.zeros((batch_size, 100, 4) , dtype=tf.float32),
+                "gt_classes": tf.zeros((batch_size, 100, 1) , dtype=tf.float32),
+                "score_targets_2": tf.zeros((batch_size, 256, 256, 3), dtype=tf.int32),
+                "box_targets_2": tf.zeros((batch_size, 256, 256, 12), dtype=tf.float32),
+                "score_targets_3": tf.zeros((batch_size, 128, 128, 3), dtype=tf.int32),
+                "box_targets_3": tf.zeros((batch_size, 128, 128, 12), dtype=tf.float32),
+                "score_targets_4": tf.zeros((batch_size, 64, 64, 3), dtype=tf.int32),
+                "box_targets_4": tf.zeros((batch_size, 64, 64, 12), dtype=tf.float32),
+                "score_targets_5": tf.zeros((batch_size, 32, 32, 3), dtype=tf.int32),
+                "box_targets_5": tf.zeros((batch_size, 32, 32, 12), dtype=tf.float32),
+                "score_targets_6": tf.zeros((batch_size, 16, 16, 3), dtype=tf.int32),
+                "box_targets_6": tf.zeros((batch_size, 16, 16, 12), dtype=tf.float32),
+            }
+
+            return tf.data.Dataset.from_tensors((name_to_features, {})).repeat()
+
         data = tf.data.TFRecordDataset(self._train_files)
 
         data = data.cache()

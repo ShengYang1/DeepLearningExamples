@@ -172,6 +172,6 @@ def create_callbacks(params):
 
     if params.log_tensorboard:
         yield tf.keras.callbacks.TensorBoard(
-            log_dir=params.log_tensorboard,
-            update_freq='batch'
+            log_dir=params.log_tensorboard, profile_batch=0,
+            update_freq=5
         )
