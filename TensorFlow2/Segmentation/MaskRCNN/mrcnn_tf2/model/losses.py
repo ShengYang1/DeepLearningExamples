@@ -28,8 +28,8 @@ class MaskRCNNLoss(tf.keras.layers.Layer):
     so that it doesn't expand `mask_targets`.
     """
 
-    def __init__(self):
-        super().__init__(trainable=False, dtype=tf.float32)
+    def __init__(self, name="MaskRCNNLoss"):
+        super().__init__(name=name, trainable=False, dtype=tf.float32)
 
     def call(self, inputs, **kwargs):
         """
@@ -82,8 +82,8 @@ class FastRCNNLoss(tf.keras.layers.Layer):
     Reference: https://github.com/facebookresearch/Detectron/blob/master/detectron/modeling/fast_rcnn_heads.py
     """
 
-    def __init__(self, num_classes):
-        super().__init__(trainable=False, dtype=tf.float32)
+    def __init__(self, num_classes, name="FastRCNNLoss"):
+        super().__init__(name=name, trainable=False, dtype=tf.float32)
         self._num_classes = num_classes
 
     def call(self, inputs, **kwargs):
@@ -155,8 +155,8 @@ class RPNLoss(tf.keras.layers.Layer):
     Computes total RPN detection loss including box and score from all levels.
     """
 
-    def __init__(self, batch_size, rpn_batch_size_per_im, min_level, max_level):
-        super().__init__(trainable=False, dtype=tf.float32)
+    def __init__(self, batch_size, rpn_batch_size_per_im, min_level, max_level, name="RPNLoss"):
+        super().__init__(name=name, trainable=False, dtype=tf.float32)
         self._batch_size = batch_size
         self._rpn_batch_size_per_im = rpn_batch_size_per_im
         self._min_level = min_level
