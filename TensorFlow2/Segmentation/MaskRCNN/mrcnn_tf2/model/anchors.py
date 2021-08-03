@@ -240,7 +240,7 @@ class AnchorLabeler:
             tf.constant(0, dtype=tf.int32, shape=match_results.shape))
         ignore_labels = tf.fill(match_results.shape, -1)
 
-        return (ignore_labels + positive_labels + negative_labels,
+        return (tf.cast(ignore_labels + positive_labels + negative_labels, tf.float32),
                 positive_labels, negative_labels)
 
     def label_anchors(self, gt_boxes, gt_labels):
