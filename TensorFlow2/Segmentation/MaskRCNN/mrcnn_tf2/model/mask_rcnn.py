@@ -251,21 +251,21 @@ class MaskRCNN(tf.keras.Model):
         mask_rcnn_loss = self.mask_rcnn_loss(model_outputs)
         mask_rcnn_loss *= self._params.mrcnn_weight_loss_mask
         self.add_loss(mask_rcnn_loss)
-        self.add_metric(mask_rcnn_loss, name='mask_rcnn_loss')
+        # self.add_metric(mask_rcnn_loss, name='mask_rcnn_loss')
 
         fast_rcnn_class_loss, fast_rcnn_box_loss = self.fast_rcnn_loss(model_outputs)
         fast_rcnn_box_loss *= self._params.fast_rcnn_box_loss_weight
         self.add_loss(fast_rcnn_box_loss)
-        self.add_metric(fast_rcnn_box_loss, name='fast_rcnn_box_loss')
+        # self.add_metric(fast_rcnn_box_loss, name='fast_rcnn_box_loss')
         self.add_loss(fast_rcnn_class_loss)
-        self.add_metric(fast_rcnn_class_loss, name='fast_rcnn_class_loss')
+        # self.add_metric(fast_rcnn_class_loss, name='fast_rcnn_class_loss')
 
         rpn_score_loss, rpn_box_loss = self.rpn_loss(model_outputs)
         rpn_box_loss *= self._params.rpn_box_loss_weight
         self.add_loss(rpn_box_loss)
-        self.add_metric(rpn_box_loss, name='rpn_box_loss')
+        # self.add_metric(rpn_box_loss, name='rpn_box_loss')
         self.add_loss(rpn_score_loss)
-        self.add_metric(rpn_score_loss, name='rpn_score_loss')
+        # self.add_metric(rpn_score_loss, name='rpn_score_loss')
 
         l2_regularization_loss = tf.add_n([
             tf.nn.l2_loss(tf.cast(v, dtype=tf.float32))
@@ -274,7 +274,7 @@ class MaskRCNN(tf.keras.Model):
         ])
         l2_regularization_loss *= self._params.l2_weight_decay
         self.add_loss(l2_regularization_loss)
-        self.add_metric(l2_regularization_loss, name='l2_regularization_loss')
+        # self.add_metric(l2_regularization_loss, name='l2_regularization_loss')
 
     def get_config(self):
         pass
