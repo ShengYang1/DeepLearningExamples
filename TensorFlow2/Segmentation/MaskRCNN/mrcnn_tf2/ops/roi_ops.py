@@ -96,16 +96,16 @@ def _propose_rois_gpu(scores,
         pre_nms_boxes = tf.cast(pre_nms_boxes, dtype=tf.float32)
         pre_nms_scores = tf.cast(pre_nms_scores, dtype=tf.float32)
 
-        with tf.device('CPU:0'):
-            boxes, scores, _, _ = tf.image.combined_non_max_suppression(
-                pre_nms_boxes,
-                pre_nms_scores,
-                max_output_size_per_class=topk_limit,
-                max_total_size=post_nms_topk_limit,
-                iou_threshold=rpn_nms_threshold,
-                score_threshold=0.0,
-                pad_per_class=False
-            )
+        # with tf.device('CPU:0'):
+        boxes, scores, _, _ = tf.image.combined_non_max_suppression(
+            pre_nms_boxes,
+            pre_nms_scores,
+            max_output_size_per_class=topk_limit,
+            max_total_size=post_nms_topk_limit,
+            iou_threshold=rpn_nms_threshold,
+            score_threshold=0.0,
+            pad_per_class=False
+        )
 
         boxes = box_utils.to_absolute_coordinates(boxes, height, width)
 
