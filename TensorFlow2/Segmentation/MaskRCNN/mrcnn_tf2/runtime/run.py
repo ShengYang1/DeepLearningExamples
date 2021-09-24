@@ -14,35 +14,31 @@ from mrcnn_tf2.runtime.weights_mapping import WEIGHTS_MAPPING
 def run_training(dataset, params):
     setup(params)
 
-    strategy = tf.distribute.MirroredStrategy()
-    params.replicas = strategy.num_replicas_in_sync
+    params.replicas = 1
     params.global_train_batch_size = params.train_batch_size * params.replicas
-    logging.info(f'Distributed Strategy is activated for {params.replicas} device(s)')
 
-    with strategy.scope():
+    learning_rate = PiecewiseConstantWithWarmupSchedule(
+        init_value=params.init_learning_rate,
+        # scale boundaries from epochs to steps
+        boundaries=[
+            int(b * dataset.train_size / params.global_train_batch_size)
+            for b in params.learning_rate_boundaries
+        ],
+        values=params.learning_rate_values,
+        # scale only by local BS as distributed strategy later scales it by number of replicas
+        scale=params.train_batch_size
+    )
 
-        learning_rate = PiecewiseConstantWithWarmupSchedule(
-            init_value=params.init_learning_rate,
-            # scale boundaries from epochs to steps
-            boundaries=[
-                int(b * dataset.train_size / params.global_train_batch_size)
-                for b in params.learning_rate_boundaries
-            ],
-            values=params.learning_rate_values,
-            # scale only by local BS as distributed strategy later scales it by number of replicas
-            scale=params.train_batch_size
-        )
+    optimizer = tf.keras.optimizers.SGD(
+        learning_rate=learning_rate,
+        momentum=params.momentum
+    )
 
-        optimizer = tf.keras.optimizers.SGD(
-            learning_rate=learning_rate,
-            momentum=params.momentum
-        )
+    mask_rcnn_model = create_model(params)
 
-        mask_rcnn_model = create_model(params)
-
-        mask_rcnn_model.compile(
-            optimizer=optimizer
-        )
+    mask_rcnn_model.compile(
+        optimizer=optimizer
+    )
 
     # distributed strategy splits data between instances so we need global BS
     train_data = dataset.train_fn(batch_size=params.global_train_batch_size)
@@ -165,10 +161,10 @@ def create_callbacks(params):
             mapping=lambda name: WEIGHTS_MAPPING.get(name.replace(':0', ''), name)
         )
 
-    yield tf.keras.callbacks.ModelCheckpoint(
-        filepath=os.path.join(params.model_dir, params.checkpoint_name_format),
-        verbose=1
-    )
+    # yield tf.keras.callbacks.ModelCheckpoint(
+    #     filepath=os.path.join(params.model_dir, params.checkpoint_name_format),
+    #     verbose=1
+    # )
 
     if params.log_tensorboard:
         yield tf.keras.callbacks.TensorBoard(
