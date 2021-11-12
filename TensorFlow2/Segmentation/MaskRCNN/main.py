@@ -57,6 +57,20 @@ def main():
     # setup dataset
     dataset = Dataset(params)
 
+    try:
+      import horovod.tensorflow.keras as hvd
+      import tensorflow as tf
+      hvd.init()
+      params.mpi_num = hvd.size()
+      params.model_dir = params.model_dir if hvd.rank() == 0 else \
+          os.path.join(params.model_dir, str(hvd.rank()))
+      xpus = tf.config.experimental.list_physical_devices('XPU')
+      tf.config.experimental.set_visible_devices(xpus[hvd.local_rank()], 'XPU')
+      logging.info("MPI horovod is enabled, this is running in MPI mode! local_rank = {}".format(hvd.local_rank()))
+    except ImportError:
+      params.mpi_num = 0
+      logging.info("No MPI horovod support, this is running in no-MPI mode!")
+
     if params.mode == 'train':
         run_training(dataset, params)
     if params.mode == 'eval':

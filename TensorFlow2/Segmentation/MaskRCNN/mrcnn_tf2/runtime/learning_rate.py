@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-
+@tf.keras.utils.register_keras_serializable('PiecewiseConstantWithWarmupSchedule')
 class PiecewiseConstantWithWarmupSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     """
     Schedule that starts with learning rate at `init_value` and monotonically increases

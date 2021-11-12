@@ -53,6 +53,14 @@ RUNTIME_GROUP.add_argument(
     ]
 )
 
+LOGGING_GROUP.add_argument(
+    '--mpi_num',
+    type=int,
+    default=0,
+    metavar='N',
+    help='Number of mpi ranks'
+)
+
 RUNTIME_GROUP.add_argument(
     '--data_dir',
     type=str,

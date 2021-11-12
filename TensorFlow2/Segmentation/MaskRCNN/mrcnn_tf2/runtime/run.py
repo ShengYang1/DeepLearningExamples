@@ -33,11 +33,17 @@ def run_training(dataset, params):
         learning_rate=learning_rate,
         momentum=params.momentum
     )
+    if params.mpi_num > 1:
+        import horovod.tensorflow.keras as hvd
+        logging.info("MPI horovod is enabled, using hvd.DistributedOptimizer")
+        optimizer = hvd.DistributedOptimizer(
+            optimizer, backward_passes_per_step=1, average_aggregated_gradients=True)
 
     mask_rcnn_model = create_model(params)
 
     mask_rcnn_model.compile(
-        optimizer=optimizer
+        optimizer=optimizer,
+        experimental_run_tf_function=False
     )
 
     # distributed strategy splits data between instances so we need global BS
@@ -161,13 +167,26 @@ def create_callbacks(params):
             mapping=lambda name: WEIGHTS_MAPPING.get(name.replace(':0', ''), name)
         )
 
-    # yield tf.keras.callbacks.ModelCheckpoint(
-    #     filepath=os.path.join(params.model_dir, params.checkpoint_name_format),
-    #     verbose=1
-    # )
+    # if params.mpi_num > 1:
+    #     import horovod.tensorflow.keras as hvd
+    #     if hvd.rank() == 0:
+    #         yield tf.keras.callbacks.ModelCheckpoint(
+    #             filepath=os.path.join(params.model_dir, params.checkpoint_name_format),
+    #             verbose=1
+    #         )
+    # else:
+    #     yield tf.keras.callbacks.ModelCheckpoint(
+    #         filepath=os.path.join(params.model_dir, params.checkpoint_name_format),
+    #         verbose=1
+    #     )
 
     if params.log_tensorboard:
         yield tf.keras.callbacks.TensorBoard(
             log_dir=params.log_tensorboard, profile_batch=0,
             update_freq=5
         )
+
+    if params.mpi_num > 1:
+        import horovod.tensorflow.keras as hvd
+        logging.info("MPI horovod is enabled, hvd.callbacks.BroadcastGlobalVariablesCallback")
+        yield hvd.callbacks.BroadcastGlobalVariablesCallback(0)
